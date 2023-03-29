@@ -9,14 +9,17 @@ import nltk
 #   find a noun and adjective to fit the iambic pentameter sequence
 #   determine if the words are positive or negative to form a compliment or insult
 
-
 # iambic pentameter definition:
 # An iambic foot is an unstressed syllable followed by a stressed syllable. This is repeated 5 times to make an iambic pentameter
 # ex: To swell the gourd, and plump the hazel shells
 
+# the library Afinn scores words by positive or negative values using sentiment analysis. More can be found: https://nealcaren.org/lessons/wordlists/
+
 # the library 'pronouncing' can check for prnonunciation and stress of a word as long as it's in it's database
 # 1 is stressed while 0 is unstressed
 # a iambic pentameter will be 0101010101
+
+# the library nltk can provide tags to words to label them as nouns or adjectives etc..
 
 from nltk.corpus import words
 from nltk.tokenize import word_tokenize, sent_tokenize
@@ -28,11 +31,9 @@ oneZeroOneZeroList = pronouncing.search_stresses("1010")
 oneZeroList = pronouncing.search_stresses("10")
 oneList = pronouncing.search_stresses("1")
 
-def adjGeneratorIambic(insultOrCompliment):
+def adjGeneratorScore(insultOrCompliment):
     adj = random.choice(oneZeroOneZeroList)
     adj = adj.replace("-", " ")
-    print('gen: ', adj)
-    print(insultOrCompliment)
     wordScore = 0.0
     
     if insultOrCompliment == True:
@@ -40,17 +41,18 @@ def adjGeneratorIambic(insultOrCompliment):
         
         while wordScore < GoalWordScore:
             wordScore = afinn.score(adj)
-            print(wordScore)
             if wordScore >= GoalWordScore:
                 break
             adj = random.choice(oneZeroOneZeroList)
             adj = adj.replace("-", " ")
+        
+        
+            
     else:
         GoalWordScore = -2.0
         
         while wordScore > GoalWordScore:
             wordScore = afinn.score(adj)
-            print(wordScore)
             if wordScore <= GoalWordScore:
                 break
             adj = random.choice(oneZeroOneZeroList)
@@ -58,15 +60,25 @@ def adjGeneratorIambic(insultOrCompliment):
     
     return adj
     
+def adjGeneratorGrammar(adj, insultOrCompliment):
+    foundAdjectives = False
+    
+    while foundAdjectives == False:
+        
+        tokenized = nltk.word_tokenize(adj)
+        result = nltk.pos_tag(tokenized)
+
+        if result[1] == "JJ" and foundAdjectives == False:
+            foundAdjectives = True
+        adj = adjGeneratorScore(insultOrCompliment)
     
     
     
-    
-def nounGeneratorIambic(insultOrCompliment):
+def nounGeneratorScore(insultOrCompliment):
     print()
     
     
-def intenseGeneratorIambic(insultOrCompliment):
+def intenseGeneratorScore(insultOrCompliment):
     print()
 """
 
@@ -126,7 +138,8 @@ def driver():
     insultOrcompliment = random.choice([True, False])
     
     # form a sentence
-    adjective = adjGeneratorIambic(insultOrcompliment)
+    adjective = adjGeneratorScore(insultOrcompliment)
+    adjGeneratorGrammar(adjective, insultOrcompliment)
     print(adjective)
     
     #noun = nounGeneratorIambic(insultOrcompliment)
